@@ -21,15 +21,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.calculateButton.setOnClickListener { calculateTip() }
+        binding.costOfServiceEditText.setOnKeyListener { view, keyCode, _ ->
+            handleKeyEvent(
+                    view,
+                    keyCode
+            )
+        }
 
 
     }
 
     private fun calculateTip() {
-        val stringInTextField = binding.costOfService.toString()
+        val stringInTextField = binding.costOfServiceEditText.text.toString()
         val cost = stringInTextField.toDoubleOrNull()
-        if (cost == null) {
-            binding.tipResult.text = ""
+        if (cost == null || cost == 0.0) {
+            displayTip(0.0)
             return
         }
 
@@ -40,10 +46,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         var tip = tipPercentage * cost
-        if (binding.roundUpSwitch.isChecked) {
+
+        val roundUp = binding.roundUpSwitch.isChecked
+        if (roundUp) {
             tip = ceil(tip)
         }
+        displayTip(tip)
 
+        val formattedTip = NumberFormat.getCurrencyInstance().format(tip)
+        binding.tipResult.text = getString(R.string.tip_amount, formattedTip)
+    }
+    private fun displayTip(tip: Double) {
         val formattedTip = NumberFormat.getCurrencyInstance().format(tip)
         binding.tipResult.text = getString(R.string.tip_amount, formattedTip)
     }
